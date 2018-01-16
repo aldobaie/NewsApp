@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	
+	<!--News Star Rating Array-->
+	<string-array name="settings_min_star_rating_labels">
+		<item>@string/settings_none_label</item>
+		<item>@string/settings_min_star_rating_one_label</item>
+		<item>@string/settings_min_star_rating_two_label</item>
+		<item>@string/settings_min_star_rating_three_label</item>
+		<item>@string/settings_min_star_rating_four_label</item>
+		<item>@string/settings_min_star_rating_five_label</item>
+	</string-array>
+	
+	<string-array name="settings_min_star_rating_values">
+		<item>@string/settings_none_value</item>
+		<item>@string/settings_min_star_rating_one_value</item>
+		<item>@string/settings_min_star_rating_two_value</item>
+		<item>@string/settings_min_star_rating_three_value</item>
+		<item>@string/settings_min_star_rating_four_value</item>
+		<item>@string/settings_min_star_rating_five_value</item>
+	</string-array>
+	
+	<!--News Languages Array-->
+	<string-array name="settings_news_language_labels">
+		<item>@string/settings_none_label</item>
+		<item>@string/settings_news_language_english_label</item>
+		<item>@string/settings_news_language_espanish_label</item>
+	</string-array>
+	
+	<string-array name="settings_news_language_values">
+		<item>@string/settings_none_value</item>
+		<item>@string/settings_news_language_english_value</item>
+		<item>@string/settings_news_language_espanish_value</item>
+	</string-array>
+	
+	<!--News Section Array-->
+	<string-array name="settings_news_sections_labels">
+		<item>@string/settings_none_label</item>
+		<item>@string/settings_news_sections_artanddesign_label</item>
+		<item>@string/settings_news_sections_australia_news_label</item>
+		<item>@string/settings_news_sections_books_label</item>
+		<item>@string/settings_news_sections_business_label</item>
+		<item>@string/settings_news_sections_music_label</item>
+		<item>@string/settings_news_sections_society_label</item>
+		<item>@string/settings_news_sections_sport_label</item>
+	</string-array>
+	
+	<string-array name="settings_news_sections_values">
+		<item>@string/settings_none_value</item>
+		<item>@string/settings_news_sections_artanddesign_value</item>
+		<item>@string/settings_news_sections_australia_news_value</item>
+		<item>@string/settings_news_sections_books_value</item>
+		<item>@string/settings_news_sections_business_value</item>
+		<item>@string/settings_news_sections_music_value</item>
+		<item>@string/settings_news_sections_society_value</item>
+		<item>@string/settings_news_sections_sport_value</item>
+	</string-array>
+</resources>

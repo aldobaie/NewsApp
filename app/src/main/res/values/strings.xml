@@ -1,5 +1,72 @@
 <resources>
 	<string name="app_name">News App</string>
-	<string name="no_data_available">No data available!</string>
+	<string name="no_data_available">No data available!\nTry to expand your search settings..</string>
 	<string name="no_internet_connection">No internet connection!</string>
+	
+	<string name="settings_menu_item">Settings</string>
+	<string name="settings_title">News Settings</string>
+	
+	<string name="by">By:</string>
+	
+	<!-- Strings For No Preferences -->
+	<string name="settings_none_label">None</string>
+	<string name="settings_none_value" translatable="false"/>
+	
+	<!-- Strings For News Minimum Star Rating Preferences -->
+	<string name="settings_min_star_rating_label">Minimum Star Rating</string>
+	<string name="settings_min_star_rating_key" translatable="false">star_rating</string>
+	<string name="settings_min_star_rating_default" translatable="false">@string/settings_none_value</string>
+	
+	<string name="settings_min_star_rating_one_label">1</string>
+	<string name="settings_min_star_rating_one_value" translatable="false">1</string>
+	
+	<string name="settings_min_star_rating_two_label">2</string>
+	<string name="settings_min_star_rating_two_value" translatable="false">2</string>
+	
+	<string name="settings_min_star_rating_three_label">3</string>
+	<string name="settings_min_star_rating_three_value" translatable="false">3</string>
+	
+	<string name="settings_min_star_rating_four_label">4</string>
+	<string name="settings_min_star_rating_four_value" translatable="false">4</string>
+	
+	<string name="settings_min_star_rating_five_label">5</string>
+	<string name="settings_min_star_rating_five_value" translatable="false">5</string>
+	
+	<!-- Strings For News Language Preferences -->
+	<string name="settings_news_language_label">News Languages</string>
+	<string name="settings_news_language_key" translatable="false">lang</string>
+	<string name="settings_news_language_default" translatable="false">@string/settings_none_value</string>
+	
+	<string name="settings_news_language_english_label">English</string>
+	<string name="settings_news_language_english_value" translatable="false">en</string>
+	
+	<string name="settings_news_language_espanish_label">Espanish</string>
+	<string name="settings_news_language_espanish_value" translatable="false">es</string>
+	
+	<!-- Strings For News Sections Preferences -->
+	<string name="settings_news_sections_label">News Sections</string>
+	<string name="settings_news_sections_key" translatable="false">news_sections</string>
+	<string name="settings_news_sections_default" translatable="false">@string/settings_none_value</string>
+	
+	<string name="settings_news_sections_artanddesign_label">Art and Design</string>
+	<string name="settings_news_sections_artanddesign_value" translatable="false">artanddesign</string>
+	
+	<string name="settings_news_sections_australia_news_label">Australia News</string>
+	<string name="settings_news_sections_australia_news_value" translatable="false">australia-news</string>
+	
+	<string name="settings_news_sections_books_label">Books</string>
+	<string name="settings_news_sections_books_value" translatable="false">books</string>
+	
+	<string name="settings_news_sections_business_label">Business</string>
+	<string name="settings_news_sections_business_value" translatable="false">business</string>
+	
+	<string name="settings_news_sections_music_label">Music</string>
+	<string name="settings_news_sections_music_value" translatable="false">music</string>
+	
+	<string name="settings_news_sections_society_label">Society</string>
+	<string name="settings_news_sections_society_value" translatable="false">society</string>
+	
+	<string name="settings_news_sections_sport_label">Sport</string>
+	<string name="settings_news_sections_sport_value" translatable="false">sport</string>
+	
 </resources>
