@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	 * parsing the given JSON response.
 	 */
 	private static List<News> extractFeatureFromJson(String newsJSON)
-	{
+	{ 
 		
 		if (TextUtils.isEmpty(newsJSON))
 		{
