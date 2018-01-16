@@ -3,9 +3,9 @@
 	 xmlns:android="http://schemas.android.com/apk/res/android"
 	 xmlns:app="http://schemas.android.com/apk/res-auto"
 	 xmlns:tools="http://schemas.android.com/tools"
+	 style="@style/ListItem"
 	 android:layout_width="match_parent"
-	 android:layout_height="match_parent"
-	 android:background="@color/listItemBackgroundColor">
+	 android:layout_height="match_parent">
 	
 	<android.support.constraint.ConstraintLayout
 		 android:layout_width="match_parent"
@@ -17,11 +17,9 @@
 		
 		<TextView
 			 android:id="@+id/section_textview"
+			 style="@style/SectionTextView"
 			 android:layout_width="wrap_content"
 			 android:layout_height="wrap_content"
-			 android:layout_gravity="end"
-			 android:textColor="@android:color/white"
-			 android:textSize="16sp"
 			 app:layout_constraintStart_toStartOf="parent"
 			 app:layout_constraintTop_toTopOf="parent"
 			 app:layout_constraintVertical_bias="0.0"
@@ -29,11 +27,9 @@
 		
 		<TextView
 			 android:id="@+id/date_textview"
+			 style="@style/DateTextView"
 			 android:layout_width="wrap_content"
 			 android:layout_height="wrap_content"
-			 android:layout_gravity="end"
-			 android:textColor="@android:color/white"
-			 android:textSize="16sp"
 			 app:layout_constraintEnd_toEndOf="parent"
 			 app:layout_constraintHorizontal_bias="1.0"
 			 app:layout_constraintStart_toEndOf="@+id/section_textview"
@@ -44,17 +40,32 @@
 	
 	<TextView
 		 android:id="@+id/title_textview"
+		 style="@style/TitleTextView"
 		 android:layout_width="match_parent"
 		 android:layout_height="wrap_content"
-		 android:fontFamily="sans-serif-medium"
-		 android:gravity="start"
-		 android:padding="8dp"
-		 android:textAlignment="textStart"
-		 android:textColor="@color/white"
-		 android:textSize="16sp"
+		 app:layout_constraintBottom_toTopOf="@id/authors_label_textview"
+		 tools:text="Long Title"/>
+	
+	<TextView
+		 android:id="@+id/authors_label_textview"
+		 style="@style/AuthorsLabelTextView"
+		 android:layout_width="wrap_content"
+		 android:layout_height="wrap_content"
+		 app:layout_constraintBottom_toBottomOf="parent"
+		 app:layout_constraintStart_toStartOf="parent"
+		 app:layout_constraintVertical_bias="1.0"
+		 tools:text="By:"/>
+	
+	<TextView
+		 android:id="@+id/authors_textview"
+		 style="@style/AuthorsTextView"
+		 android:layout_width="wrap_content"
+		 android:layout_height="wrap_content"
 		 app:layout_constraintBottom_toBottomOf="parent"
 		 app:layout_constraintEnd_toEndOf="parent"
-		 app:layout_constraintStart_toStartOf="parent"
-		 tools:text="Long Title"/>
+		 app:layout_constraintHorizontal_bias="0.0"
+		 app:layout_constraintStart_toEndOf="@id/authors_label_textview"
+		 app:layout_constraintVertical_bias="1.0"
+		 tools:text="author, authors"/>
 
 </android.support.constraint.ConstraintLayout>

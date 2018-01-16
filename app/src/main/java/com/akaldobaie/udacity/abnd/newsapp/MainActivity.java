@@ -5,13 +5,17 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -33,27 +37,33 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<News>>
+{
 	
 	private static final String LOG_TAG = MainActivity.class.getName();
-	private static final String queryStringURL = "http://content.guardianapis.com/search?q=debates&api-key=test";
+	private static final String queryStringURL = "https://content.guardianapis.com";
 	private static final int NEWS_LOADER_ID = 1;
 	private NewsAdapter newsAdapter;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		/*
+		 * Check Internet Connection
+		 */
 		ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 		
-		if (cm != null) {
+		if (cm != null)
+		{
 			NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 			
 			boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
 			
-			if (!isConnected) {
-				
+			if (!isConnected)
+			{
 				ProgressBar loadingSpinner = findViewById(R.id.loading_spinner_progress_bar);
 				loadingSpinner.setVisibility(View.GONE);
 				
@@ -64,6 +74,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 			}
 		}
 		
+		/*
+		 * Setup the News ListView
+		 */
 		ListView newsListView = findViewById(R.id.list);
 		newsListView.setEmptyView(findViewById(R.id.empty_message_textview));
 		
@@ -72,11 +85,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 		
 		newsListView.setAdapter(newsAdapter);
 		
-		newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			
+		newsListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		{
 			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-				
+			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+			{
 				News currentNews = newsAdapter.getItem(i);
 				
 				if (currentNews == null)
@@ -97,19 +110,78 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	}
 	
 	@Override
-	public Loader<List<News>> onCreateLoader(int i, Bundle bundle) {
-		// Create a new loader for the given URL
-		return new NewsLoader(this, queryStringURL);
+	public Loader<List<News>> onCreateLoader(int i, Bundle bundle)
+	{
+		
+		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		String minStarRating = sharedPrefs.getString(
+			 getString(R.string.settings_min_star_rating_key),
+			 getString(R.string.settings_min_star_rating_default));
+		
+		String newsLanguage = sharedPrefs.getString(
+			 getString(R.string.settings_news_language_key),
+			 getString(R.string.settings_news_language_default)
+		);
+		
+		String newsSections = sharedPrefs.getString(
+			 getString(R.string.settings_news_sections_key),
+			 getString(R.string.settings_news_sections_default)
+		);
+		
+		Uri baseUri = Uri.parse(queryStringURL);
+		Uri.Builder uriBuilder = baseUri.buildUpon();
+		
+		// Either specify the section or search the api
+		if (!newsSections.trim().isEmpty())
+		{
+			uriBuilder.appendPath(newsSections);
+		} else
+		{
+			uriBuilder.appendPath("search");
+		}
+		
+		// Check if Star-Rating integer is between 1 and 5, else excluded
+		try
+		{
+			if (!minStarRating.trim().isEmpty())
+			{
+				Integer intStarRating = Integer.parseInt(minStarRating);
+				Log.e(LOG_TAG, "intStarRating: " + intStarRating + ", minStarRating: " + minStarRating);
+				
+				if (intStarRating >= 1 && intStarRating <= 5)
+				{
+					uriBuilder.appendQueryParameter("star-rating", minStarRating);
+				}
+			}
+		} catch (NumberFormatException e)
+		{
+			e.printStackTrace();
+		}
+		
+		if (!newsLanguage.trim().isEmpty())
+		{
+			uriBuilder.appendQueryParameter("lang", newsLanguage);
+		}
+		
+		uriBuilder.appendQueryParameter("api-key", "test");
+		uriBuilder.appendQueryParameter("show-tags", "contributor");
+		Log.e(LOG_TAG, "uriBuilder: " + uriBuilder.toString());
+		
+		return new NewsLoader(this, uriBuilder.toString());
 	}
 	
 	@Override
-	public void onLoadFinished(Loader<List<News>> loader, List<News> news) {
-		
+	public void onLoadFinished(Loader<List<News>> loader, List<News> newsList)
+	{
+		// When updating the list view adapter clear it, then append the new list items
 		newsAdapter.clear();
 		
-		if (news != null && !news.isEmpty()) {
-			newsAdapter.addAll(news);
-		} else {
+		if (newsList != null && !newsList.isEmpty())
+		{
+			newsAdapter.addAll(newsList);
+		} else
+		{
 			TextView emptyTextView = findViewById(R.id.empty_message_textview);
 			emptyTextView.setText(R.string.no_data_available);
 		}
@@ -119,30 +191,38 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	}
 	
 	@Override
-	public void onLoaderReset(Loader<List<News>> loader) {
+	public void onLoaderReset(Loader<List<News>> loader)
+	{
 		newsAdapter.clear();
 	}
 	
-	private static class NewsLoader extends AsyncTaskLoader<List<News>> {
+	/**
+	 * News Loader Class
+	 */
+	private static class NewsLoader extends AsyncTaskLoader<List<News>>
+	{
 		
 		private final String LOG_TAG = NewsLoader.class.getName();
 		private String mUrl;
 		
-		NewsLoader(Context context, String url) {
+		NewsLoader(Context context, String url)
+		{
 			super(context);
 			
 			mUrl = url;
 		}
 		
 		@Override
-		protected void onStartLoading() {
+		protected void onStartLoading()
+		{
 			forceLoad();
 		}
 		
 		@Override
-		public List<News> loadInBackground() {
-			
-			if (mUrl == null) {
+		public List<News> loadInBackground()
+		{
+			if (mUrl == null)
+			{
 				Log.e(LOG_TAG, "Error: URL not provided ");
 				
 				return null;
@@ -156,13 +236,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	/**
 	 * Returns new URL object from the given string URL.
 	 */
-	private static URL createUrl(String stringUrl) {
+	private static URL createUrl(String stringUrl)
+	{
 		URL url = null;
 		
-		try {
+		try
+		{
 			url = new URL(stringUrl);
-		} catch (MalformedURLException e) {
-			Log.e(LOG_TAG, "Problem building the URL ", e);
+		} catch (MalformedURLException e)
+		{
+			Log.e(LOG_TAG, "Error while building the URL ", e);
 		}
 		return url;
 	}
@@ -170,16 +253,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	/**
 	 * Make an HTTP request to the given URL and return a String as the response.
 	 */
-	private static String makeHttpRequest(URL url) throws IOException {
+	private static String makeHttpRequest(URL url) throws IOException
+	{
 		String jsonResponse = "";
 		
-		if (url == null) {
+		if (url == null)
+		{
 			return jsonResponse;
 		}
 		
 		HttpURLConnection urlConnection = null;
 		InputStream inputStream = null;
-		try {
+		try
+		{
 			urlConnection = (HttpURLConnection) url.openConnection();
 			urlConnection.setReadTimeout(10000 /* milliseconds */);
 			urlConnection.setConnectTimeout(15000 /* milliseconds */);
@@ -188,19 +274,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 			
 			// If the request was successful (response code 200),
 			// then read the input stream and parse the response.
-			if (urlConnection.getResponseCode() == 200) {
+			if (urlConnection.getResponseCode() == 200)
+			{
 				inputStream = urlConnection.getInputStream();
 				jsonResponse = readFromStream(inputStream);
-			} else {
+			} else
+			{
 				Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
 			}
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "Problem retrieving the news JSON results.", e);
-		} finally {
-			if (urlConnection != null) {
+		} catch (IOException e)
+		{
+			Log.e(LOG_TAG, "Error while retrieving the news JSON results.", e);
+		} finally
+		{
+			if (urlConnection != null)
+			{
 				urlConnection.disconnect();
 			}
-			if (inputStream != null) {
+			if (inputStream != null)
+			{
 				inputStream.close();
 			}
 		}
@@ -211,13 +303,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	 * Convert the {@link InputStream} into a String which contains the
 	 * whole JSON response from the server.
 	 */
-	private static String readFromStream(InputStream inputStream) throws IOException {
+	private static String readFromStream(InputStream inputStream) throws IOException
+	{
+		
 		StringBuilder output = new StringBuilder();
-		if (inputStream != null) {
+		
+		if (inputStream != null)
+		{
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
 			BufferedReader reader = new BufferedReader(inputStreamReader);
 			String line = reader.readLine();
-			while (line != null) {
+			
+			while (line != null)
+			{
 				output.append(line);
 				line = reader.readLine();
 			}
@@ -229,20 +327,23 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	 * Return a list of {@link News} objects that has been built up from
 	 * parsing the given JSON response.
 	 */
-	private static List<News> extractFeatureFromJson(String newsJSON) {
+	private static List<News> extractFeatureFromJson(String newsJSON)
+	{
 		
-		if (TextUtils.isEmpty(newsJSON)) {
+		if (TextUtils.isEmpty(newsJSON))
+		{
 			return null;
 		}
 		
 		List<News> newsList = new ArrayList<>();
 		
-		try {
+		try
+		{
 			JSONObject baseJsonResponse = new JSONObject(newsJSON);
 			JSONArray newsArray = baseJsonResponse.getJSONObject("response").getJSONArray("results");
 			
-			for (int i = 0; i < newsArray.length(); i++) {
-				
+			for (int i = 0; i < newsArray.length(); i++)
+			{
 				JSONObject currentNews = newsArray.getJSONObject(i);
 				
 				String title = "";
@@ -250,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 				String url = "";
 				String sectionName = "";
 				String sectionId = "";
+				String authors = "";
 				
 				if (currentNews.has("webTitle"))
 					title = currentNews.getString("webTitle");
@@ -261,30 +363,94 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 					sectionName = currentNews.getString("sectionName");
 				if (currentNews.has("sectionId"))
 					sectionId = currentNews.getString("sectionId");
+				if (currentNews.has("tags"))
+					authors = getAuthors(currentNews.getJSONArray("tags"));
 				
-				newsList.add(new News(title, date, url, sectionName, sectionId));
+				newsList.add(new News(title, date, url, sectionName, sectionId, authors));
 			}
-		} catch (JSONException e) {
-			
-			Log.e("QueryUtils", "Problem parsing the news JSON results", e);
+		} catch (JSONException e)
+		{
+			Log.e(LOG_TAG, "Error parsing the news JSON results", e);
 		}
 		
 		return newsList;
 	}
 	
-	public static List<News> fetchNewsData(String requestUrl) {
-		
+	public static List<News> fetchNewsData(String requestUrl)
+	{
 		URL url = createUrl(requestUrl);
 		
-		// Perform HTTP request to the URL and receive a JSON response back
 		String jsonResponse = null;
-		
-		try {
+		try
+		{
 			jsonResponse = makeHttpRequest(url);
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			Log.e(LOG_TAG, "Error making the HTTP request.", e);
 		}
 		
 		return extractFeatureFromJson(jsonResponse);
+	}
+	
+	private static String getAuthors(JSONArray tagsJSONArray)
+	{
+		StringBuilder authors = new StringBuilder("");
+		
+		for (int j = 0; j < tagsJSONArray.length(); j++)
+		{
+			try
+			{
+				JSONObject tag = tagsJSONArray.getJSONObject(j);
+				
+				if (tag.has("firstName"))
+				{
+					// if more than one author add comma and space
+					if (j > 0)
+					{
+						authors.append(", ");
+					}
+					authors.append(tag.getString("firstName"));
+					authors.append(" ");
+				}
+				//if more than one author && without firstName add comma and space
+				else if (j > 0 && tag.has("lastName"))
+				{
+					authors.append(", ");
+				}
+				
+				if (tag.has("lastName"))
+				{
+					authors.append(tag.getString("lastName"));
+				}
+			} catch (JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		Log.i(LOG_TAG, "Authors: " + authors.toString().trim());
+		
+		return authors.toString().trim();
+	}
+	
+	@Override
+	// This method initialize the contents of the Activity's options menu.
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		// Inflate the Options Menu we specified in XML
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		int id = item.getItemId();
+		if (id == R.id.action_settings)
+		{
+			Intent settingsIntent = new Intent(this, SettingsActivity.class);
+			startActivity(settingsIntent);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 }

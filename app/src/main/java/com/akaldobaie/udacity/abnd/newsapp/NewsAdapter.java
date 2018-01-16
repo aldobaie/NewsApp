@@ -9,27 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-/**
+/*
  * Created by Abdullah Aldobaie (akdPro) on 1/14/18 at 5:51 PM.
- * <p>
- * This file is created for and owned by SaudiCamp.
- * Visit SaudiCamp.com for more info
- * or contact: Android.SaudiCamp@gmail.com
- * or contact: SaudiCamp@gmail.com
- * <p>
- * This is not an open source code, Please, destroy copy or have a written license from owner.
- * <p>
- * Copyright (c) 2018 SaudiCamp
  */
 
-class NewsAdapter extends ArrayAdapter<News> {
+class NewsAdapter extends ArrayAdapter<News>
+{
+	
 	/**
 	 * Constructor
 	 *
@@ -41,34 +29,67 @@ class NewsAdapter extends ArrayAdapter<News> {
 	 * @param objects
 	 * 	 The objects to represent in the ListView.
 	 */
-	public NewsAdapter(@NonNull Context context, int resource, @NonNull List<News> objects) {
+	NewsAdapter(@NonNull Context context, int resource, @NonNull List<News> objects)
+	{
 		super(context, resource, objects);
-		
-		
 	}
-	
 	
 	@NonNull
 	@Override
-	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent)
+	{
+		ViewHolder holder;
 		
-		View listItemView = convertView;
-		
-		if (listItemView == null) {
-			listItemView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
+		if (convertView == null)
+		{
+			convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item, parent, false);
+			
+			holder = new ViewHolder();
+			holder.sectionTextView = convertView.findViewById(R.id.section_textview);
+			holder.dateTextView = convertView.findViewById(R.id.date_textview);
+			holder.titleTextView = convertView.findViewById(R.id.title_textview);
+			holder.authorsLabelTextView = convertView.findViewById(R.id.authors_label_textview);
+			holder.authorsTextView = convertView.findViewById(R.id.authors_textview);
+			
+			convertView.setTag(holder);
+		} else
+		{
+			holder = (ViewHolder) convertView.getTag();
 		}
 		
 		News currentNews = getItem(position);
 		
-		TextView sectionTextView = listItemView.findViewById(R.id.section_textview);
-		sectionTextView.setText(currentNews.getSectionName());
+		if (currentNews == null)
+		{
+			return convertView;
+		}
 		
-		TextView dateTextView = listItemView.findViewById(R.id.date_textview);
-		dateTextView.setText(currentNews.getFormattedDate());
+		holder.sectionTextView.setText(currentNews.getSectionName());
+		holder.dateTextView.setText(currentNews.getFormattedDate());
+		holder.titleTextView.setText(currentNews.getTitle());
 		
-		TextView titleTextView = listItemView.findViewById(R.id.title_textview);
-		titleTextView.setText(currentNews.getTitle());
+		if (!currentNews.getAuthors().isEmpty())
+		{
+			holder.authorsLabelTextView.setVisibility(View.VISIBLE);
+			holder.authorsTextView.setVisibility(View.VISIBLE);
+			holder.authorsTextView.setText(currentNews.getAuthors());
+			
+		} else
+		{
+			holder.authorsLabelTextView.setVisibility(View.GONE);
+			holder.authorsTextView.setVisibility(View.GONE);
+		}
 		
-		return listItemView;
+		return convertView;
+	}
+	
+	private static class ViewHolder
+	{
+		
+		private TextView sectionTextView;
+		private TextView dateTextView;
+		private TextView titleTextView;
+		private TextView authorsLabelTextView;
+		private TextView authorsTextView;
 	}
 }
