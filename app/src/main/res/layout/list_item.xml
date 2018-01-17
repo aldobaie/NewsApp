@@ -23,7 +23,7 @@
 			 app:layout_constraintStart_toStartOf="parent"
 			 app:layout_constraintTop_toTopOf="parent"
 			 app:layout_constraintVertical_bias="0.0"
-			 tools:text="Section"/>
+			 tools:text="@string/section_text_holder"/>
 		
 		<TextView
 			 android:id="@+id/date_textview"
@@ -35,7 +35,7 @@
 			 app:layout_constraintStart_toEndOf="@+id/section_textview"
 			 app:layout_constraintTop_toTopOf="parent"
 			 app:layout_constraintVertical_bias="0.0"
-			 tools:text="Mar 6, 2010"/>
+			 tools:text="@string/date_text_holder"/>
 	</android.support.constraint.ConstraintLayout>
 	
 	<TextView
@@ -44,7 +44,7 @@
 		 android:layout_width="match_parent"
 		 android:layout_height="wrap_content"
 		 app:layout_constraintBottom_toTopOf="@id/authors_label_textview"
-		 tools:text="Long Title"/>
+		 tools:text="@string/title_text_holder"/>
 	
 	<TextView
 		 android:id="@+id/authors_label_textview"
@@ -54,7 +54,7 @@
 		 app:layout_constraintBottom_toBottomOf="parent"
 		 app:layout_constraintStart_toStartOf="parent"
 		 app:layout_constraintVertical_bias="1.0"
-		 tools:text="By:"/>
+		 tools:text="@string/by"/>
 	
 	<TextView
 		 android:id="@+id/authors_textview"
@@ -66,6 +66,6 @@
 		 app:layout_constraintHorizontal_bias="0.0"
 		 app:layout_constraintStart_toEndOf="@id/authors_label_textview"
 		 app:layout_constraintVertical_bias="1.0"
-		 tools:text="author, authors"/>
+		 tools:text="@string/authors_text_holder"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	
 	<!--News Star Rating Array-->
 	<string-array name="settings_min_star_rating_labels">
 		<item>@string/settings_none_label</item>

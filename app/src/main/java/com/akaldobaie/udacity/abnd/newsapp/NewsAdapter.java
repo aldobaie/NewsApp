@@ -58,28 +58,25 @@ class NewsAdapter extends ArrayAdapter<News>
 		}
 		
 		News currentNews = getItem(position);
-		
 		if (currentNews == null)
 		{
 			return convertView;
 		}
 		
 		holder.sectionTextView.setText(currentNews.getSectionName());
+		holder.sectionTextView.setTag(currentNews.getSectionID());
 		holder.dateTextView.setText(currentNews.getFormattedDate());
 		holder.titleTextView.setText(currentNews.getTitle());
-		
 		if (!currentNews.getAuthors().isEmpty())
 		{
 			holder.authorsLabelTextView.setVisibility(View.VISIBLE);
 			holder.authorsTextView.setVisibility(View.VISIBLE);
 			holder.authorsTextView.setText(currentNews.getAuthors());
-			
 		} else
 		{
 			holder.authorsLabelTextView.setVisibility(View.GONE);
 			holder.authorsTextView.setVisibility(View.GONE);
 		}
-		
 		return convertView;
 	}
 	

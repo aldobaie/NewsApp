@@ -1,12 +1,15 @@
 <resources>
 	<string name="app_name">News App</string>
-	<string name="no_data_available">No data available!\nTry to expand your search settings..</string>
-	<string name="no_internet_connection">No internet connection!</string>
 	
+	<string name="no_data_available">Oops!\nWe were not able to fetch the news at the moment. Please, try again later!</string>
+	<string name="no_internet_connection">No internet connection!\nPlease, check your network connectivity, then try again.</string>
+	<string name="no_data_under_criteria">Sorry!\nWe did not find any news under those criteria at the moment. Please, try to remove the filters in the settings and try again!</string>
+
 	<string name="settings_menu_item">Settings</string>
 	<string name="settings_title">News Settings</string>
 	
 	<string name="by">By:</string>
+	<string name="try_again">Try Again</string>
 	
 	<!-- Strings For No Preferences -->
 	<string name="settings_none_label">None</string>
@@ -68,5 +71,8 @@
 	
 	<string name="settings_news_sections_sport_label">Sport</string>
 	<string name="settings_news_sections_sport_value" translatable="false">sport</string>
-	
+	<string name="authors_text_holder">author, authors</string>
+	<string name="title_text_holder">Long Title, long title, long title, long title, long title, long title, and very long title.</string>
+	<string name="date_text_holder">Mar 6, 2010</string>
+	<string name="section_text_holder">Section</string>
 </resources>

@@ -49,11 +49,6 @@ class News
 		return title;
 	}
 	
-	String getPublicationDate()
-	{
-		return publicationDate;
-	}
-	
 	String getUrl()
 	{
 		return url;
@@ -84,10 +79,9 @@ class News
 		DateFormat desiredDateFormat = new SimpleDateFormat("LLL dd, yyyy");
 		DateFormat currentDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss'Z'");
 		Date date = null;
-		
 		try
 		{
-			date = currentDateFormat.parse(getPublicationDate());
+			date = currentDateFormat.parse(this.publicationDate);
 		} catch (ParseException e)
 		{
 			e.printStackTrace();
@@ -96,7 +90,6 @@ class News
 		{
 			return desiredDateFormat.format(date);
 		}
-		
 		// if not able to format return input
 		return publicationDate;
 	}

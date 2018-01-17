@@ -18,8 +18,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -44,35 +44,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	private static final String queryStringURL = "https://content.guardianapis.com";
 	private static final int NEWS_LOADER_ID = 1;
 	private NewsAdapter newsAdapter;
+	private LoaderManager loaderManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		/*
-		 * Check Internet Connection
-		 */
-		ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-		
-		if (cm != null)
-		{
-			NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-			
-			boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
-			
-			if (!isConnected)
-			{
-				ProgressBar loadingSpinner = findViewById(R.id.loading_spinner_progress_bar);
-				loadingSpinner.setVisibility(View.GONE);
-				
-				TextView emptyTextView = findViewById(R.id.empty_message_textview);
-				emptyTextView.setText(R.string.no_internet_connection);
-				
-				return;
-			}
-		}
 		
 		/*
 		 * Setup the News ListView
@@ -104,17 +82,32 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 				startActivity(intent);
 			}
 		});
-		
 		LoaderManager loaderManager = getLoaderManager();
 		loaderManager.initLoader(NEWS_LOADER_ID, null, this);
 	}
 	
 	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		
+		if (!isInternetConnected())
+		{
+			if (loaderManager != null)
+			{
+				loaderManager.destroyLoader(NEWS_LOADER_ID);
+			} else
+			{
+				loaderManager = getLoaderManager();
+				loaderManager.initLoader(NEWS_LOADER_ID, null, this);
+			}
+		}
+	}
+	
+	@Override
 	public Loader<List<News>> onCreateLoader(int i, Bundle bundle)
 	{
-		
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		
 		String minStarRating = sharedPrefs.getString(
 			 getString(R.string.settings_min_star_rating_key),
 			 getString(R.string.settings_min_star_rating_default));
@@ -123,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 			 getString(R.string.settings_news_language_key),
 			 getString(R.string.settings_news_language_default)
 		);
-		
 		String newsSections = sharedPrefs.getString(
 			 getString(R.string.settings_news_sections_key),
 			 getString(R.string.settings_news_sections_default)
@@ -172,22 +164,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	}
 	
 	@Override
-	public void onLoadFinished(Loader<List<News>> loader, List<News> newsList)
+	public void onLoadFinished(Loader<List<News>> loader, List<News> news)
 	{
-		// When updating the list view adapter clear it, then append the new list items
 		newsAdapter.clear();
 		
-		if (newsList != null && !newsList.isEmpty())
+		if (news != null && !news.isEmpty())
 		{
-			newsAdapter.addAll(newsList);
+			newsAdapter.addAll(news);
+			showProgressSpinner(false);
+			showMessage(false, 0);
+			showTryAgainButton(false);
 		} else
 		{
-			TextView emptyTextView = findViewById(R.id.empty_message_textview);
-			emptyTextView.setText(R.string.no_data_available);
+			showProgressSpinner(false);
+			showTryAgainButton(true);
+			if(news == null)
+				showMessage(true, R.string.no_data_available);
+			else
+				showMessage(true, R.string.no_data_under_criteria);
 		}
-		
-		ProgressBar loadingSpinner = findViewById(R.id.loading_spinner_progress_bar);
-		loadingSpinner.setVisibility(View.GONE);
 	}
 	
 	@Override
@@ -224,7 +219,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 			if (mUrl == null)
 			{
 				Log.e(LOG_TAG, "Error: URL not provided ");
-				
 				return null;
 			}
 			
@@ -239,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	private static URL createUrl(String stringUrl)
 	{
 		URL url = null;
-		
 		try
 		{
 			url = new URL(stringUrl);
@@ -256,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	private static String makeHttpRequest(URL url) throws IOException
 	{
 		String jsonResponse = "";
-		
 		if (url == null)
 		{
 			return jsonResponse;
@@ -280,11 +272,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 				jsonResponse = readFromStream(inputStream);
 			} else
 			{
-				Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
+				Log.e(LOG_TAG, "Error response code 1: " + urlConnection.getResponseCode());
+				Log.e(LOG_TAG, "Error response code 2: " + readFromStream(urlConnection.getErrorStream()));
 			}
 		} catch (IOException e)
 		{
-			Log.e(LOG_TAG, "Error while retrieving the news JSON results.", e);
+			Log.e(LOG_TAG, "Error while retrieving the news JSON results. 1- " + e.getMessage(), e);
 		} finally
 		{
 			if (urlConnection != null)
@@ -305,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 	 */
 	private static String readFromStream(InputStream inputStream) throws IOException
 	{
-		
 		StringBuilder output = new StringBuilder();
 		
 		if (inputStream != null)
@@ -313,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
 			BufferedReader reader = new BufferedReader(inputStreamReader);
 			String line = reader.readLine();
-			
 			while (line != null)
 			{
 				output.append(line);
@@ -336,7 +327,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 		}
 		
 		List<News> newsList = new ArrayList<>();
-		
 		try
 		{
 			JSONObject baseJsonResponse = new JSONObject(newsJSON);
@@ -430,6 +420,86 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 		Log.i(LOG_TAG, "Authors: " + authors.toString().trim());
 		
 		return authors.toString().trim();
+	}
+	
+	private Boolean isInternetConnected()
+	{
+		showProgressSpinner(true);
+		showMessage(false, 0);
+		
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		boolean isConnected = false;
+		
+		if (cm != null)
+		{
+			NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+			isConnected = activeNetwork != null && activeNetwork.isConnected();
+			
+			if (!isConnected)
+			{
+				showTryAgainButton(true);
+				showMessage(true, R.string.no_internet_connection);
+			}
+		}
+		Log.i(LOG_TAG, "isInternetConnected: " + isConnected);
+		return isConnected;
+	}
+	
+	private void showTryAgainButton(Boolean show)
+	{
+		Button tryButton = findViewById(R.id.try_again_button);
+		if (show)
+		{
+			tryButton.setVisibility(View.VISIBLE);
+			tryButton.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					if (isInternetConnected())
+					{
+						reloadData();
+					}
+				}
+			});
+		} else
+		{
+			tryButton.setVisibility(View.GONE);
+			showProgressSpinner(false);
+		}
+	}
+	
+	private void showProgressSpinner(Boolean show)
+	{
+		if (show)
+			findViewById(R.id.loading_spinner_progress_bar).setVisibility(View.VISIBLE);
+		else
+			findViewById(R.id.loading_spinner_progress_bar).setVisibility(View.GONE);
+	}
+	
+	private void showMessage(Boolean show, int messageResId)
+	{
+		if (show)
+		{
+			TextView messageTextView = findViewById(R.id.empty_message_textview);
+			messageTextView.setText(messageResId);
+			messageTextView.setVisibility(View.VISIBLE);
+		} else
+		{
+			findViewById(R.id.empty_message_textview).setVisibility(View.GONE);
+		}
+	}
+	
+	private void reloadData()
+	{
+		if (loaderManager != null)
+		{
+			loaderManager.restartLoader(NEWS_LOADER_ID, null, this);
+		} else
+		{
+			loaderManager = getLoaderManager();
+			loaderManager.initLoader(NEWS_LOADER_ID, null, this);
+		}
 	}
 	
 	@Override
